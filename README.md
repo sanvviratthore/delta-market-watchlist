@@ -124,13 +124,17 @@ New accounts start with a small starter watchlist (AAPL, TSLA, MSFT,
 NVDA) already added, so the product is visible immediately rather than
 requiring you to type tickers before seeing anything work.
 
-**Backend**
+One process serves both the API and the frontend (FastAPI mounts the
+`frontend/` folder as static files, see the bottom of `main.py`) — so
+there's a single command to run and a single service to deploy.
+
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
-Runs on `http://localhost:8000`. Interactive API docs at `/docs`.
+Open `http://localhost:8000` — that's the app itself. Interactive API
+docs are at `http://localhost:8000/docs`.
 
 **Tests**
 ```bash
@@ -138,28 +142,30 @@ cd backend
 pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
-9 tests covering the change-detection engine — the core claim of the
-product (e.g. "the same 1% move is noise on a volatile stock but
-meaningful on a stable one" is asserted directly, not just described).
+13 tests covering the change-detection engine and the market-context
+comparison — the core claims of the product are asserted directly
+(e.g. "the same 1% move is noise on a volatile stock but meaningful on
+a stable one"), not just described in prose.
 
-**Frontend**
-```bash
-cd frontend
-python3 -m http.server 5500
-```
-Open `http://localhost:5500`. Register a user, add a few symbols
-(e.g. `AAPL`, `TSLA`, `MSFT`), and watch prices update live over
-WebSocket — the poller ticks every 8 seconds.
+## Deploying
+
+`render.yaml` at the repo root deploys the whole thing (frontend +
+backend) as a single Render web service — no separate static-site
+host needed, since the backend serves the frontend itself. Push to
+GitHub, then on Render: New > Blueprint > select the repo. That's it.
 
 ## Project structure
 ```
+render.yaml                one-command deploy config (Render)
 backend/
   app/
-    main.py            REST + WebSocket routes
-    change_engine.py    "what counts as meaningful" — the core logic
-    data_sources.py     live quote client + circuit breaker + fallback
-    poller.py            deduped background polling + fan-out
+    main.py                REST + WebSocket routes, mounts frontend/ as static files
+    change_engine.py        "what counts as meaningful" + market-context comparison
+    data_sources.py         live quote client + circuit breaker + fallback
+    poller.py                deduped background polling + fan-out
     models.py, schemas.py, database.py, auth.py
+  tests/
+    test_change_engine.py   13 tests on the core decision logic
 frontend/
-  index.html, app.js, styles.css   no build step, plain fetch + WebSocket
+  index.html, app.js, styles.css   no build step, plain fetch + WebSocket, served by FastAPI
 ```

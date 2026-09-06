@@ -5,15 +5,10 @@
  * clearly and honestly, not to be a framework showcase.
  */
 
-// Auto-detects local dev vs. deployed. Once your backend is deployed,
-// replace the string below with its real URL (e.g. from Render) —
-// that's the ONLY line you need to change to go live.
-const PRODUCTION_API_BASE = "https://REPLACE-WITH-YOUR-BACKEND-URL.onrender.com";
-
-const API_BASE = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? "http://localhost:8000"
-  : PRODUCTION_API_BASE;
-
+// The frontend is served BY the same FastAPI app as the API (see the
+// StaticFiles mount in main.py), so it's always same-origin -- no
+// hardcoded backend URL to maintain, works identically local and deployed.
+const API_BASE = window.location.origin;
 const WS_BASE = API_BASE.replace("http", "ws"); // http->ws and https->wss both work with this replace
 
 let token = localStorage.getItem("delta_token"); // auth token only; watchlist state stays server-side

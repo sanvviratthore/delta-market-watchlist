@@ -1,9 +1,11 @@
 import asyncio
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from . import models, schemas, auth
@@ -211,3 +213,14 @@ async def ws_symbol(websocket: WebSocket, symbol: str):
 @app.get("/health")
 def health():
     return {"status": "ok", "time": datetime.now(timezone.utc).isoformat()}
+
+
+# ---------- Serve the frontend from the same app/URL/deploy ----------
+#
+# One repo, one Render service, one URL. Mounted LAST and at "/" so it
+# only catches requests that didn't match an API route above (Starlette
+# checks routes in registration order) -- this is the standard pattern
+# for serving a static SPA and its API from a single FastAPI instance.
+FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

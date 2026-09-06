@@ -111,6 +111,12 @@ Pub/Sub so multiple backend replicas share one feed.
 - The free live-quote source (Stooq) has no real-time timestamp, so
   "delayed" is a nominal label until swapped for a paid feed with real
   latency metadata.
+- On a free-tier deploy (e.g. Render's free plan), the SQLite file lives
+  on ephemeral disk — a redeploy or a long idle period wipes it, so
+  registered demo accounts won't persist indefinitely. Swapping the one
+  connection string in `database.py` for a managed Postgres URL (Render
+  and Railway both offer a free Postgres instance) fixes this with no
+  code changes elsewhere, since the app is already plain SQLAlchemy.
 
 ## Running it and trying it out
 

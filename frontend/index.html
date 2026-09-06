@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Delta — a watchlist that separates signal from noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header class="masthead">
+      <div class="masthead-row">
+        <div class="wordmark">Δ Delta</div>
+        <div class="header-right">
+          <span class="dateline" id="dateline"></span>
+          <button id="logout-btn" class="logout-btn hidden">Log out</button>
+        </div>
+      </div>
+      <p class="strapline">A watchlist that separates signal from noise.</p>
+    </header>
+
+    <div class="connection-banner hidden" id="connection-banner" role="alert">
+      Can't reach the server right now. Checking again every few seconds — your watchlist will pick back up once it's back.
+    </div>
+
+    <!-- Auth -->
+    <section id="auth-screen" class="auth-panel">
+      <h1>Sign in to your ledger</h1>
+      <p class="sub">Your positions and what you've already seen are kept on our server, so it's the same whichever device you check from.</p>
+      <form id="auth-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" required autocomplete="email" />
+        <label for="password">Password</label>
+        <input id="password" type="password" required autocomplete="current-password" />
+        <div class="button-row">
+          <button type="submit" id="login-btn" class="btn-primary">Sign in</button>
+          <button type="button" id="register-btn" class="btn-secondary">Create account</button>
+        </div>
+        <p id="auth-error" class="form-error" role="alert"></p>
+      </form>
+    </section>
+
+    <!-- Main -->
+    <section id="main-screen" class="hidden">
+
+      <div class="attention-line" id="attention-line"></div>
+
+      <form class="add-row" id="add-form">
+        <input id="symbol-input" placeholder="Add a symbol — e.g. AAPL" aria-label="Add a symbol" />
+        <button type="submit" class="btn-primary">Add</button>
+      </form>
+
+      <div class="ledger" id="ledger">
+        <div class="ledger-head" role="row">
+          <span class="col-symbol">Symbol</span>
+          <span class="col-price">Price</span>
+          <span class="col-change">Change</span>
+          <span class="col-signal">What's changed</span>
+          <span class="col-quality">Data</span>
+          <span class="col-remove"></span>
+        </div>
+        <div id="ledger-body"></div>
+      </div>
+
+      <p class="empty-state hidden" id="empty-state">
+        Your ledger is empty. Add a symbol above to start tracking it —
+        try one you already know well.
+      </p>
+    </section>
+  </div>
+
+  <template id="row-template">
+    <div class="ledger-row" role="row">
+      <span class="col-symbol"><span class="symbol"></span></span>
+      <span class="col-price"><span class="price">—</span></span>
+      <span class="col-change"><span class="live-delta"></span></span>
+      <span class="col-signal">
+        <span class="signal-text">Loading…</span>
+        <span class="market-context hidden"></span>
+      </span>
+      <span class="col-quality"><span class="quality-tag"></span></span>
+      <span class="col-remove"><button class="remove-btn" aria-label="Remove">Remove</button></span>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
